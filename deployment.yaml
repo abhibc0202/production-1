@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: production-1
+  namespace: production-1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: production-1
+  template:
+    metadata:
+      labels:
+        app: production-1
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: devops-cluster-worker
+      containers:
+        - name: nginx
+          image: a6h15hek/production-1:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: APP_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: production-1-config
+                  key: APP_ENV
+            - name: APP_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: production-1-secret
+                  key: APP_SECRET
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: production-storage
+              mountPath: /data
+      volumes:
+        - name: production-storage
+          persistentVolumeClaim:
+            claimName: production-1-pvc
