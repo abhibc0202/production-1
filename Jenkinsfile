@@ -4,17 +4,9 @@ pipeline {
     environment {
         IMAGE = 'a6h15hek/production-1:latest'
         KUBECONFIG = '/var/lib/jenkins/jenkins-kubeconfig'
-        GIT_REPO = 'https://github.com/abhibc0202/production-1.git'
     }
 
     stages {
-
-        stage('Git Checkout') {
-            steps {
-                deleteDir()
-                git branch: 'main', url: "${GIT_REPO}"
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
@@ -27,9 +19,17 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                sh '''
-                    docker push $IMAGE
-                '''
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKERHUB_USER',
+                    passwordVariable: 'DOCKERHUB_TOKEN'
+                )]) {
+                    sh '''
+                        echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                        docker push $IMAGE
+                        docker logout
+                    '''
+                }
             }
         }
 
@@ -47,7 +47,7 @@ pipeline {
 
                     kubectl -n production-1 set image deployment/production-1 nginx=$IMAGE
 
-                    kubectl -n production-1 rollout status deployment/production-1
+                    kubectl -n production-1 rollout status deployment/production-1 --timeout=120s
                 '''
             }
         }
