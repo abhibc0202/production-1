@@ -1,3 +1,4 @@
+```groovy
 pipeline {
     agent any
 
@@ -7,6 +8,13 @@ pipeline {
     }
 
     stages {
+
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/abhibc0202/production-1'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -64,3 +72,4 @@ pipeline {
         }
     }
 }
+```
