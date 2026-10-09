@@ -1,4 +1,3 @@
-```groovy
 pipeline {
     agent any
 
@@ -12,7 +11,7 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/abhibc0202/production-1'
+                    url: 'https://github.com/abhibc0202/production-1.git'
             }
         }
 
@@ -72,4 +71,3 @@ pipeline {
         }
     }
 }
-```
