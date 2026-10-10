@@ -18,8 +18,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
+                    set -eu
                     cd app
-                    docker build -t $IMAGE .
+                    docker build --pull -t $IMAGE .
                 '''
             }
         }
@@ -32,6 +33,7 @@ pipeline {
                     passwordVariable: 'DOCKERHUB_TOKEN'
                 )]) {
                     sh '''
+                        set -eu
                         echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USER" --password-stdin
                         docker push $IMAGE
                         docker logout
@@ -43,6 +45,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
+                    set -eu
+
                     kubectl apply -f configmap.yaml
                     kubectl apply -f secret.yaml
                     kubectl apply -f pv.yaml
@@ -54,7 +58,9 @@ pipeline {
 
                     kubectl -n production-1 set image deployment/production-1 nginx=$IMAGE
 
-                    kubectl -n production-1 rollout status deployment/production-1 --timeout=120s
+                    kubectl -n production-1 rollout restart deployment/production-1
+
+                    kubectl -n production-1 rollout status deployment/production-1 --timeout=180s
                 '''
             }
         }
@@ -62,7 +68,10 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 sh '''
-                    kubectl get pods -n production-1
+                    set -eu
+
+                    kubectl get deployment production-1 -n production-1
+                    kubectl get pods -n production-1 -o wide
                     kubectl get svc -n production-1
                     kubectl get hpa -n production-1
                     kubectl get ingress -n production-1
