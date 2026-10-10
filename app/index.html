@@ -1,10 +1,253 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Production Kubernetes Application</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production-1 | Kubernetes Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #0b1220;
+            color: #e5edf8;
+        }
+
+        header {
+            background: #111d32;
+            padding: 25px 7%;
+            border-bottom: 1px solid #263852;
+        }
+
+        .brand {
+            color: #60a5fa;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            margin: 12px 0 6px;
+            font-size: clamp(27px, 4vw, 40px);
+        }
+
+        header p {
+            color: #a9bbd2;
+            margin: 0;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 22px;
+        }
+
+        .status-banner {
+            padding: 20px;
+            background: #102d2b;
+            border: 1px solid #21645c;
+            border-radius: 14px;
+            margin-bottom: 25px;
+        }
+
+        .status-banner strong {
+            color: #6ee7b7;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            background: #131f33;
+            border: 1px solid #293b55;
+            border-radius: 14px;
+            padding: 23px;
+        }
+
+        .icon {
+            font-size: 28px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin: 16px 0 10px;
+        }
+
+        .value {
+            color: #7dd3fc;
+            font-size: 20px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .description {
+            color: #a9bbd2;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .label {
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 11px;
+        }
+
+        .storage {
+            margin-top: 22px;
+        }
+
+        .storage button {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .storage button:hover {
+            background: #1d4ed8;
+        }
+
+        #storage-result {
+            margin-top: 14px;
+            padding: 12px;
+            background: #0b1220;
+            border-radius: 8px;
+            overflow-wrap: anywhere;
+            color: #a9bbd2;
+            font-size: 13px;
+        }
+
+        footer {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 22px;
+            border-top: 1px solid #293b55;
+            color: #94a3b8;
+            font-size: 13px;
+            text-align: center;
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Production Kubernetes Application</h1>
-    <p>Application deployed successfully on Kubernetes.</p>
+    <header>
+        <div class="brand">DEVOPS • PRODUCTION ENVIRONMENT</div>
+        <h1>Production-1 Dashboard</h1>
+        <p>Kubernetes deployment and infrastructure overview</p>
+    </header>
+
+    <main>
+        <section class="status-banner">
+            <strong>● Application Online</strong>
+            <p>Welcome to Production-1. Explore the Kubernetes resources powering this application.</p>
+        </section>
+
+        <section class="grid">
+            <article class="card">
+                <div class="icon">⚙️</div>
+                <h2>ConfigMap</h2>
+                <div class="label">Application environment</div>
+                <p class="value" id="app-env">Loading...</p>
+                <p class="description">Configuration supplied through the Kubernetes ConfigMap.</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">🔐</div>
+                <h2>Secret</h2>
+                <div class="label">Secret injection</div>
+                <p class="value" id="secret-status">Checking...</p>
+                <p class="description">The application checks whether APP_SECRET is present. Its actual value is never displayed.</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">💾</div>
+                <h2>Persistent Storage</h2>
+                <div class="label">Mounted application data</div>
+                <p class="value">PVC /data</p>
+                <p class="description">Use the storage test below to write and read a record from persistent storage.</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">❤️</div>
+                <h2>Health Checks</h2>
+                <div class="label">Kubernetes probes</div>
+                <p class="value">Enabled</p>
+                <p class="description">Liveness and readiness probes check the Nginx HTTP endpoint.</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">🔄</div>
+                <h2>Deployment</h2>
+                <div class="label">Workload</div>
+                <p class="value">production-1</p>
+                <p class="description">Managed by a Kubernetes Deployment with three desired replicas.</p>
+            </article>
+
+            <article class="card">
+                <div class="icon">🚀</div>
+                <h2>CI/CD Pipeline</h2>
+                <div class="label">Continuous delivery</div>
+                <p class="value">Jenkins</p>
+                <p class="description">GitHub changes trigger the pipeline to build, push, deploy, and verify the application.</p>
+            </article>
+        </section>
+
+        <section class="card storage">
+            <h2>Persistent Storage Test</h2>
+            <p class="description">
+                Click the button to ask the application to write a test record to
+                /data and read it back. This requires the storage endpoint to be
+                configured in the next step.
+            </p>
+            <button id="storage-button" type="button">Test Persistent Storage</button>
+            <div id="storage-result" role="status">Storage test has not been run.</div>
+        </section>
+    </main>
+
+    <footer>
+        Production-1 • Nginx • Kubernetes • Jenkins CI/CD
+    </footer>
+
+    <script>
+        fetch('/dashboard-config.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Configuration endpoint unavailable');
+                }
+                return response.json();
+            })
+            .then(config => {
+                document.getElementById('app-env').textContent =
+                    config.appEnv || 'Not configured';
+
+                document.getElementById('secret-status').textContent =
+                    config.secretPresent ? 'Injected' : 'Not detected';
+            })
+            .catch(() => {
+                document.getElementById('app-env').textContent =
+                    'Awaiting configuration';
+
+                document.getElementById('secret-status').textContent =
+                    'Not verified';
+            });
+
+        document.getElementById('storage-button').addEventListener('click', () => {
+            const result = document.getElementById('storage-result');
+            result.textContent = 'Storage endpoint is not configured yet.';
+        });
+    </script>
 </body>
 </html>
+```
