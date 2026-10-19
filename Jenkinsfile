@@ -42,26 +42,20 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy with Helm') {
             steps {
-                sh '''
+                sh """
                     set -eu
 
-                    kubectl apply -f configmap.yaml
-                    kubectl apply -f secret.yaml
-                    kubectl apply -f pv.yaml
-                    kubectl apply -f pvc.yaml
-                    kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
-                    kubectl apply -f hpa.yaml
-                    kubectl apply -f ingress.yaml
-
-                    kubectl -n production-1 set image deployment/production-1 nginx=$IMAGE
-
-                    kubectl -n production-1 rollout restart deployment/production-1
+                    helm upgrade --install production-1 ./helm/production-1 \
+                        --namespace production-1 \
+                        --take-ownership \
+                        --set image.tag=latest \
+                        --wait \
+                        --timeout 180s
 
                     kubectl -n production-1 rollout status deployment/production-1 --timeout=180s
-                '''
+                """
             }
         }
 

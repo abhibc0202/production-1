@@ -1,0 +1,37 @@
+name: production-1
+replicaCount: 3
+namespace: production-1
+
+image:
+  repository: a6h15hek/production-1
+  tag: latest
+  pullPolicy: Always
+
+service:
+  name: production-1-service
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+hpa:
+  enabled: true
+  name: production-1-hpa
+  minReplicas: 3
+  maxReplicas: 5
+  cpuTarget: 70
+
+ingress:
+  enabled: true
+  name: production-1-ingress
+  className: nginx
+
+storage:
+  pvName: production-1-pv
+  pvcName: production-1-pvc
+  size: 1Gi
+
+configMap:
+  name: production-1-config
+
+secret:
+  name: production-1-secret
